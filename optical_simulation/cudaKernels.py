@@ -18,7 +18,24 @@ import math
 
 import numpy as np
 from numba import cuda
+from functools import partial
+import multiprocessing
 
+def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
+  # Find the distance between source and observation point
+  # dist = sqrt(x^2 + (source point - observation point)^2)
+
+  dist = math.sqrt(GratingSeparation ** 2 + (obsPoints[pos] - sourcePoints[point]) ** 2)
+  # TODO: Is this calculation better to do on CPU or GPU?
+
+  # Determine the phase between points
+  phase = cmath.exp(1j * WaveNumber * dist)
+  # find Amplitudes
+  U = sourceAmp[point] * (phase.real + 1j * phase.imag) * (sourcePhase[point].real + 1j * sourcePhase[point].imag) / dist
+  # sum the totals
+  #phaseSum = phaseSum + phase
+  #ampSum = ampSum + U
+  return (phase, U)
 
 # This function gets called for every observation point
 @cuda.jit
@@ -58,7 +75,7 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
 
     # Iterates over every source point for this observation point
     # TODO: Optimize code even more so we can increase number of threads and remove for loop
-    for point in range(0, len(sourcePoints)):
+    """ for point in range(0, len(sourcePoints)):
         # Find the distance between source and observation point
         # dist = sqrt(x^2 + (source point - observation point)^2)
 
@@ -72,7 +89,14 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
                 sourcePhase[point].real + 1j * sourcePhase[point].imag) / dist
         # sum the totals
         phaseSum = phaseSum + phase
-        ampSum = ampSum + U
+        ampSum = ampSum + U """
+
+    pool = multiprocessing.Pool()
+    points = range(0, len(sourcePoints))
+    func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
+    result_list = pool.map(func, points)
+    print(result_list)
+    
     # Find Intensity
     intensitySum = (ampSum.real ** 2 + ampSum.imag ** 2)
     # take the square root of intensity
