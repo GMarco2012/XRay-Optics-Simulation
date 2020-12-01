@@ -17,12 +17,11 @@ import cmath
 import math
 
 import numpy as np
-from numba import cuda, jit, njit
+from numba import cuda
 
 
 # This function gets called for every observation point
-#@cuda.jit
-@njit
+@cuda.jit
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
                     out_intense):
     """calculates intensity, amplitude and phases between sources points and observation points
