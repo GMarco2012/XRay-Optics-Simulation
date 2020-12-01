@@ -39,7 +39,7 @@ def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNum
   return (phase, U)
 
 # This function gets called for every observation point
-@cuda.jit
+@cuda.jit(nopython=True)
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
                     out_intense):
     """calculates intensity, amplitude and phases between sources points and observation points
@@ -101,7 +101,7 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     out_amp[pos] = preservedAmp
     out_intense[pos] = intensitySum
 
-
+@cuda.jit(nopython=True)
 def intensityCalculations(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase):
     """This function is used as an abstraction layer for the CUDA kernel. This function does the type casting and is able to return values.
       
