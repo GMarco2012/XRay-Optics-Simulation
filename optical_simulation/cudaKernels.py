@@ -17,11 +17,11 @@ import cmath
 import math
 
 import numpy as np
-from numba import cuda
+from numba import jit,cuda
 from functools import partial
 import multiprocessing
 
-@jit(nopython=False)
+@jit
 def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
   # Find the distance between source and observation point
   # dist = sqrt(x^2 + (source point - observation point)^2)
@@ -39,7 +39,7 @@ def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNum
   return (phase, U)
 
 # This function gets called for every observation point
-@jit(nopython=False)
+@jit
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
                     out_intense):
     """calculates intensity, amplitude and phases between sources points and observation points
