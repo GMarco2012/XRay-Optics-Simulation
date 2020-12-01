@@ -81,7 +81,7 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     #List of source points points
     points = range(0, len(sourcePoints))
     #Partial function with only the source point changing
-    func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
+    func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=np.array(sourcePhase))
     #Get the results of the multithreaded calculation
     result_list = pool.map(func, points)
     #Sum both rows of the tuples
