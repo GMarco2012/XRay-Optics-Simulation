@@ -21,7 +21,7 @@ from numba import cuda
 from functools import partial
 import multiprocessing
 
-@cuda.jit
+@cuda.jit(nopython=True)
 def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
   # Find the distance between source and observation point
   # dist = sqrt(x^2 + (source point - observation point)^2)
@@ -76,29 +76,19 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
 
     # Iterates over every source point for this observation point
     # TODO: Optimize code even more so we can increase number of threads and remove for loop
-    """ for point in range(0, len(sourcePoints)):
-        # Find the distance between source and observation point
-        # dist = sqrt(x^2 + (source point - observation point)^2)
-
-        dist = math.sqrt(GratingSeparation ** 2 + (obsPoints[pos] - sourcePoints[point]) ** 2)
-        # TODO: Is this calculation better to do on CPU or GPU?
-
-        # Determine the phase between points
-        phase = cmath.exp(1j * WaveNumber * dist)
-        # find Amplitudes
-        U = sourceAmp[point] * (phase.real + 1j * phase.imag) * (
-                sourcePhase[point].real + 1j * sourcePhase[point].imag) / dist
-        # sum the totals
-        phaseSum = phaseSum + phase
-        ampSum = ampSum + U """
-
-    
+    #Init thread pool
     pool = multiprocessing.Pool(5)
+    #List of source points points
     points = range(0, len(sourcePoints))
+    #Partial function with only the source point changing
     func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
+    #Get the results of the multithreaded calculation
     result_list = pool.map(func, points)
+    #Sum both rows of the tuples
     sums = [sum(x) for x in zip(*result_list)]
+    #Get phase sum
     phaseSum = sums[0]
+    #Get amp sum
     ampSum = sums[1]
 
     # Find Intensity
