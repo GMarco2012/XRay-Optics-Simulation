@@ -76,14 +76,19 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
 
     # Iterates over every source point for this observation point
     # TODO: Optimize code even more so we can increase number of threads and remove for loop
+
     #Init thread pool
     pool = multiprocessing.Pool(5)
     #List of source points points
-    points = range(0, len(sourcePoints))
+    #points = range(0, len(sourcePoints))
+
+    points = [(x, pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase) for x in range(0, len(sourcePoints))]
+
     #Partial function with only the source point changing
-    func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=np.array(sourcePhase))
+    #func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
     #Get the results of the multithreaded calculation
-    result_list = pool.map(func, points)
+    #result_list = pool.map(func, points)
+    result_list = pool.starmap(SrcPointCalc,points)
     #Sum both rows of the tuples
     sums = [sum(x) for x in zip(*result_list)]
     #Get phase sum
