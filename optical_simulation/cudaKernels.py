@@ -17,37 +17,12 @@ import cmath
 import math
 
 import numpy as np
-from numba import jit,cuda
-from functools import partial
-import multiprocessing
+from numba import cuda, jit, njit
 
-@jit(nopython=False)
-def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
-  # Find the distance between source and observation point
-  # dist = sqrt(x^2 + (source point - observation point)^2)
-
-  dist = math.sqrt(GratingSeparation ** 2 + (obsPoints[pos] - sourcePoints[point]) ** 2)
-  # TODO: Is this calculation better to do on CPU or GPU?
-
-  # Determine the phase between points
-  phase = cmath.exp(1j * WaveNumber * dist)
-  # find Amplitudes
-  U = sourceAmp[point] * (phase.real + 1j * phase.imag) * (sourcePhase[point].real + 1j * sourcePhase[point].imag) / dist
-  # sum the totals
-  #phaseSum = phaseSum + phase
-  #ampSum = ampSum + U
-  return (phase, U)
-
-@jit(nopython=False)
-def getSums(pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
-  pool = multiprocessing.Pool(5)
-  points = [(x, pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase) for x in range(0, len(sourcePoints))]
-  result_list = pool.starmap(SrcPointCalc,points)
-  sums = [sum(x) for x in zip(*result_list)]
-  return sums
 
 # This function gets called for every observation point
-@cuda.jit
+#@cuda.jit
+@njit
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
                     out_intense):
     """calculates intensity, amplitude and phases between sources points and observation points
@@ -79,34 +54,26 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     pos = cuda.grid(1)  # computed flattened index inside the array
 
     # initialize variables 
-    #phaseSum = 0
-    #ampSum = 0
+    phaseSum = 0
+    ampSum = 0
 
     # Iterates over every source point for this observation point
     # TODO: Optimize code even more so we can increase number of threads and remove for loop
+    for point in range(0, len(sourcePoints)):
+        # Find the distance between source and observation point
+        # dist = sqrt(x^2 + (source point - observation point)^2)
 
-    #Init thread pool
-    #pool = multiprocessing.Pool(5)
-    #List of source points points
-    #points = range(0, len(sourcePoints))
+        dist = math.sqrt(GratingSeparation ** 2 + (obsPoints[pos] - sourcePoints[point]) ** 2)
+        # TODO: Is this calculation better to do on CPU or GPU?
 
-    #points = [(x, pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase) for x in range(0, len(sourcePoints))]
-
-    #Partial function with only the source point changing
-    #func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
-    #Get the results of the multithreaded calculation
-    #result_list = pool.map(func, points)
-    #result_list = pool.starmap(SrcPointCalc,points)
-    #Sum both rows of the tuples
-    #sums = [sum(x) for x in zip(*result_list)]
-    #Get phase sum
-    #phaseSum = sums[0]
-    #Get amp sum
-    #ampSum = sums[1]
-
-    sums = getSums(pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase)
-    phaseSum = sums[0]
-    ampSum = sums[1]
+        # Determine the phase between points
+        phase = cmath.exp(1j * WaveNumber * dist)
+        # find Amplitudes
+        U = sourceAmp[point] * (phase.real + 1j * phase.imag) * (
+                sourcePhase[point].real + 1j * sourcePhase[point].imag) / dist
+        # sum the totals
+        phaseSum = phaseSum + phase
+        ampSum = ampSum + U
     # Find Intensity
     intensitySum = (ampSum.real ** 2 + ampSum.imag ** 2)
     # take the square root of intensity
