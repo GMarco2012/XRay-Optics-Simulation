@@ -71,8 +71,8 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     pos = cuda.grid(1)  # computed flattened index inside the array
 
     # initialize variables 
-    phaseSum = 0
-    ampSum = 0
+    #phaseSum = 0
+    #ampSum = 0
 
     # Iterates over every source point for this observation point
     # TODO: Optimize code even more so we can increase number of threads and remove for loop
@@ -92,11 +92,14 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
         phaseSum = phaseSum + phase
         ampSum = ampSum + U """
 
-    pool = multiprocessing.Pool()
+    
+    pool = multiprocessing.Pool(5)
     points = range(0, len(sourcePoints))
     func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
     result_list = pool.map(func, points)
-    print(result_list)
+    sums = [sum(x) for x in zip(*result_list)]
+    phaseSum = sums[0]
+    ampSum = sums[1]
 
     # Find Intensity
     intensitySum = (ampSum.real ** 2 + ampSum.imag ** 2)
