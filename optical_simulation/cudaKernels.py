@@ -21,7 +21,7 @@ from numba import cuda
 from functools import partial
 import multiprocessing
 
-@cuda.jit(nopython=False)
+@cuda.jit
 def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
   # Find the distance between source and observation point
   # dist = sqrt(x^2 + (source point - observation point)^2)
@@ -39,7 +39,7 @@ def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNum
   return (phase, U)
 
 # This function gets called for every observation point
-@cuda.jit(nopython=False)
+@cuda.jit
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
                     out_intense):
     """calculates intensity, amplitude and phases between sources points and observation points
@@ -101,7 +101,7 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     out_amp[pos] = preservedAmp
     out_intense[pos] = intensitySum
 
-@cuda.jit(nopython=False)
+
 def intensityCalculations(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase):
     """This function is used as an abstraction layer for the CUDA kernel. This function does the type casting and is able to return values.
       
