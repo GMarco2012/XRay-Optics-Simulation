@@ -21,7 +21,7 @@ from numba import jit,cuda
 from functools import partial
 import multiprocessing
 
-@jit
+@jit(nopython=False)
 def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
   # Find the distance between source and observation point
   # dist = sqrt(x^2 + (source point - observation point)^2)
