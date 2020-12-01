@@ -90,12 +90,14 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     #result_list = pool.map(func, points)
     result_list = pool.starmap(SrcPointCalc,points)
     #Sum both rows of the tuples
-    sums = [sum(x) for x in zip(*result_list)]
+    #sums = [sum(x) for x in zip(*result_list)]
     #Get phase sum
-    phaseSum = sums[0]
+    #phaseSum = sums[0]
     #Get amp sum
-    ampSum = sums[1]
+    #ampSum = sums[1]
 
+    phaseSum = 0
+    ampSum = 0
     # Find Intensity
     intensitySum = (ampSum.real ** 2 + ampSum.imag ** 2)
     # take the square root of intensity
