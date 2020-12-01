@@ -45,7 +45,7 @@ def getSums(pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAm
   result_list = pool.starmap(SrcPointCalc,points)
   sums = [sum(x) for x in zip(*result_list)]
   return sums
-  
+
 # This function gets called for every observation point
 @cuda.jit
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
@@ -104,8 +104,9 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     #Get amp sum
     #ampSum = sums[1]
 
-    phaseSum = 0
-    ampSum = 0
+    sums = getSums(pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase)
+    phaseSum = sums[0]
+    ampSum = sums[1]
     # Find Intensity
     intensitySum = (ampSum.real ** 2 + ampSum.imag ** 2)
     # take the square root of intensity
