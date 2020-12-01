@@ -38,6 +38,14 @@ def SrcPointCalc(point, pos, GratingSeparation, obsPoints, sourcePoints, WaveNum
   #ampSum = ampSum + U
   return (phase, U)
 
+@jit(nopython=False)
+def getSums(pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase):
+  pool = multiprocessing.Pool(5)
+  points = [(x, pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase) for x in range(0, len(sourcePoints))]
+  result_list = pool.starmap(SrcPointCalc,points)
+  sums = [sum(x) for x in zip(*result_list)]
+  return sums
+  
 # This function gets called for every observation point
 @cuda.jit
 def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sourceAmp, sourcePhase, out_phase, out_amp,
@@ -78,17 +86,17 @@ def intensityKernel(GratingSeparation, WaveNumber, sourcePoints, obsPoints, sour
     # TODO: Optimize code even more so we can increase number of threads and remove for loop
 
     #Init thread pool
-    pool = multiprocessing.Pool(5)
+    #pool = multiprocessing.Pool(5)
     #List of source points points
     #points = range(0, len(sourcePoints))
 
-    points = [(x, pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase) for x in range(0, len(sourcePoints))]
+    #points = [(x, pos, GratingSeparation,obsPoints, sourcePoints, WaveNumber, sourceAmp, sourcePhase) for x in range(0, len(sourcePoints))]
 
     #Partial function with only the source point changing
     #func = partial(SrcPointCalc, pos=pos, GratingSeparation=GratingSeparation, obsPoints=obsPoints, sourcePoints=sourcePoints, WaveNumber=WaveNumber, sourceAmp=sourceAmp, sourcePhase=sourcePhase)
     #Get the results of the multithreaded calculation
     #result_list = pool.map(func, points)
-    result_list = pool.starmap(SrcPointCalc,points)
+    #result_list = pool.starmap(SrcPointCalc,points)
     #Sum both rows of the tuples
     #sums = [sum(x) for x in zip(*result_list)]
     #Get phase sum
