@@ -199,6 +199,8 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
 
 
 def makeSources(Slit, SlitHeight, amplitude, spacing_type, broken):
+    FEA_BROKEN_SLIT_HEIGHT = 0.378
+    
     if spacing_type.lower() == "uniform":
 
         # makes sources in each slit array
@@ -232,7 +234,7 @@ def makeSources(Slit, SlitHeight, amplitude, spacing_type, broken):
                     ts_last = PointSource(Slit.x, Slit.y + Slit.width, amplitude)
                     Slit.sources.append(ts_last)
             else:
-                spacing = Slit.width / (Slit.num_sources - 1)
+                spacing = Slit.width + FEA_BROKEN_SLIT_HEIGHT / (Slit.num_sources - 1)
                 ts_first = PointSource(Slit.x, Slit.y, amplitude)
                 Slit.sources.append(ts_first)
 
