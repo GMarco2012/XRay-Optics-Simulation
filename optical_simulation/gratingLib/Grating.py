@@ -44,6 +44,8 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
     # diffraction
 
     broken_slit_locs = random.randint(1, grating.numberOfSlits, 10) 
+    FEA_BROKEN_SLIT_HEIGHT = 0.378
+    BROKEN_SLIT_OFFSET = source_spacing + (slit_height-FEA_BROKEN_SLIT_HEIGHT)
 
     if grating.numberOfSlits == 1:
         # Modeling Single Slit Diffraction
@@ -138,7 +140,11 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
             #for slit in grating.slits:
             for idx, slit in enumerate(grating.slits):
                 if brokenSlits == True and idx in broken_slit_locs:
-                        makeSources(slit, slit_height / 2, 0, source_spacing)
+                        try:
+                            makeSources(slit, FEA_SLIT_HEIGHT, 0, BROKEN_SLIT_OFFSET)
+                        except:
+                            makeSources(slit, FEA_SLIT_HEIGHT, 0, source_spacing)
+                        
                         print("Broken slit added at slit index " + str(idx))
                 else:
                     makeSources(slit, slit_height, 0, source_spacing)
@@ -186,7 +192,10 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
 
             for idx, slit in enumerate(grating.slits):
                 if brokenSlits == True and idx in broken_slit_locs:
-                    makeSources(slit, slit_height / 2, 0, source_spacing)
+                    try:
+                        makeSources(slit, FEA_SLIT_HEIGHT, 0, BROKEN_SLIT_OFFSET)
+                    except:
+                        makeSources(slit, FEA_SLIT_HEIGHT, 0, source_spacing)
                     print("Broken slit added at slit index " + str(idx))
                 else:
                     makeSources(slit, slit_height, 0, source_spacing)
