@@ -45,7 +45,6 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
 
     broken_slit_locs = random.randint(1, grating.numberOfSlits, 10) 
     FEA_BROKEN_SLIT_HEIGHT = 0.378
-    BROKEN_SLIT_OFFSET = source_spacing + (slit_height-FEA_BROKEN_SLIT_HEIGHT)
 
     if grating.numberOfSlits == 1:
         # Modeling Single Slit Diffraction
