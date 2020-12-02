@@ -59,7 +59,7 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
         thisSlit = Slit(grating.x, (center - slit_width / 2) + offset, slit_width, num_sources, [])
         # thisSlit = Slit(Grating.x, center - slit_width/2, slit_width, num_sources, [])
         grating.slits.append(thisSlit)
-        makeSources(thisSlit, slit_height, 0, source_spacing)
+        makeSources(thisSlit, slit_height, 0, source_spacing, False)
 
         for slit in grating.slits:
             for i in range(0, slit_height - 1):
@@ -96,7 +96,7 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
         grating.slits.append(slit2)
 
         for slit in grating.slits:
-            makeSources(slit, slit_height, 0, source_spacing)
+            makeSources(slit, slit_height, 0, source_spacing, False)
 
         for slit in grating.slits:
             for i in range(0, slit_height - 1):
@@ -140,14 +140,10 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
             #for slit in grating.slits:
             for idx, slit in enumerate(grating.slits):
                 if brokenSlits == True and idx in broken_slit_locs:
-                        try:
-                            makeSources(slit, FEA_SLIT_HEIGHT, 0, BROKEN_SLIT_OFFSET)
-                        except:
-                            makeSources(slit, FEA_SLIT_HEIGHT, 0, source_spacing)
-                        
-                        print("Broken slit added at slit index " + str(idx))
+                    makeSources(slit, FEA_BROKEN_SLIT_HEIGHT, 0, source_spacing, False)
+                    print("Broken slit added at slit index " + str(idx))
                 else:
-                    makeSources(slit, slit_height, 0, source_spacing)
+                    makeSources(slit, slit_height, 0, source_spacing, False)
                 
 
             for slit in grating.slits:
@@ -192,13 +188,10 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
 
             for idx, slit in enumerate(grating.slits):
                 if brokenSlits == True and idx in broken_slit_locs:
-                    try:
-                        makeSources(slit, FEA_SLIT_HEIGHT, 0, BROKEN_SLIT_OFFSET)
-                    except:
-                        makeSources(slit, FEA_SLIT_HEIGHT, 0, source_spacing)
+                    makeSources(slit, FEA_BROKEN_SLIT_HEIGHT, 0, source_spacing, True)
                     print("Broken slit added at slit index " + str(idx))
                 else:
-                    makeSources(slit, slit_height, 0, source_spacing)
+                    makeSources(slit, slit_height, 0, source_spacing, False)
 
             for slit in grating.slits:
                 for source in slit.sources:
@@ -206,7 +199,7 @@ def makeSlits(grating, slit_width, slit_height, num_sources, source_spacing, bro
                     grating.pointSourceAmplitudes.append(source.amplitude)
 
 
-def makeSources(Slit, SlitHeight, amplitude, spacing_type):
+def makeSources(Slit, SlitHeight, amplitude, spacing_type, broken):
     if spacing_type.lower() == "uniform":
 
         # makes sources in each slit array
@@ -226,19 +219,32 @@ def makeSources(Slit, SlitHeight, amplitude, spacing_type):
             Slit.sources.append(ts2)
 
         else:
+            if broken == False:
+                spacing = Slit.width / (Slit.num_sources - 1)
+                ts_first = PointSource(Slit.x, Slit.y, amplitude)
+                Slit.sources.append(ts_first)
 
-            spacing = Slit.width / (Slit.num_sources - 1)
-            ts_first = PointSource(Slit.x, Slit.y, amplitude)
-            Slit.sources.append(ts_first)
+                y_position = spacing
 
-            y_position = spacing
+                for i in range(0, Slit.num_sources - 2):
+                    Slit.sources.append(PointSource(Slit.x, Slit.y + y_position, amplitude))
+                    y_position = y_position + spacing
 
-        for i in range(0, Slit.num_sources - 2):
-            Slit.sources.append(PointSource(Slit.x, Slit.y + y_position, amplitude))
-            y_position = y_position + spacing
+                    ts_last = PointSource(Slit.x, Slit.y + Slit.width, amplitude)
+                    Slit.sources.append(ts_last)
+            else:
+                spacing = Slit.width / (Slit.num_sources - 1)
+                ts_first = PointSource(Slit.x, Slit.y, amplitude)
+                Slit.sources.append(ts_first)
 
-        ts_last = PointSource(Slit.x, Slit.y + Slit.width, amplitude)
-        Slit.sources.append(ts_last)
+                y_position = spacing
+
+                for i in range(0, Slit.num_sources - 2):
+                    Slit.sources.append(PointSource(Slit.x, Slit.y + y_position, amplitude))
+                    y_position = y_position + spacing
+
+                    ts_last = PointSource(Slit.x, Slit.y + Slit.width, amplitude)
+                    Slit.sources.append(ts_last)
 
     elif spacing_type.lower() == "random":
 
