@@ -1,6 +1,9 @@
 # Python temp files/compiled files
 __pycache__/
 *.pyc
+*~
+*.swp
+*.swo
 
 # etc
 .Rhistory
@@ -10,14 +13,11 @@ __pycache__/
 
 # Output files
 image_output/
-
 .ipynb_checkpoints/
-
 mprofile_*.dat
 
-# Test work dir
+# Don't save out/ folder or any other test results in the git history. Save those locally.
 out/
-
-*~
-*.swp
-*.swo
+notes/runtime-differences/
+notes/bandwidth/bandwidth_output.txt
+notes/bandwidth/bandwidth.bmp

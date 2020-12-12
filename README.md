@@ -12,14 +12,14 @@ The purpose of this IPRO is to experimentally answer if matter and antimatter re
 You will need a computer with an NVIDIA GPU that supports CUDA.You will also need to use Linux. WSL may work. Virtualization will likely not work unless it offers GPU passthrough. We used a system with the following configuration:
 
 #### CPU
-(2) Intel(R) Xeon(R) CPU E5-2630 v2 @ 2.60GHz
+(2x) Intel(R) Xeon(R) CPU E5-2630 v2 @ 2.60GHz
 
 #### Memory
-(5) Micron 4GB MT9JSF51272PZ-1G9E2
+(5x) Micron 4GB MT9JSF51272PZ-1G9E2
 
 #### GPU
-(1) TITAN Xp
-(1) Tesla K40c
+(1x) TITAN Xp
+(1x) Tesla K40c
 
 #### Software
 
@@ -53,7 +53,7 @@ Add the package to `environment.yml`.
 
 Run `conda env update -f environment.yml` in this directory to update Conda's environment from this file.
 
-## Notes on 3d_plots folder
+## Notes on 3D_plots folder
 One of the tasks from Fall 2020 was to make the whole simulation 3-dimensional. This was one of many tasks we had planned that semester so unfortunetly, there was not enough time left to finish. This task is a long-term goal and other groups should continue where we left off if they are willing to make it the theme for their entire semester. There can be many benefits to completing this task such as incorporating strut changes and exploring more up to date computing hardware.
 
 ## Contributing
@@ -62,7 +62,8 @@ Previously to Fall 2020, there was no default way to keep track of semester prog
 1. Fork the previous semester's repository.
 2. Update the Introduction section of the README.md file to reflect your current semester. Specifically, change the semester description ***in bold***.
 3. Add as much documentation as possible to your semester's Google Drive folder. Write everything clearly as if a complete stranger will need to read it one day.
-4. COMMENT YOUR CODE.
+4. Save all test results locally or somewhere outside of the GitHub repository commit history. Only save successful test results that have been used to show improvements in midterm or final presentations. Discard any results that were generated from faulty code or prototypes.
+5. COMMENT YOUR CODE.
 
 
 ## Resources
